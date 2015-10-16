@@ -5,11 +5,157 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
+
   </head>
   <body class="mixpanel-platform-body">
-    <h1>Hello, World!</h1>
+    <div class="mixpanel-platform-section">
+        <div id="dateSelect" style="float: left;"></div>
+        <div id="eventSelect" style="float: left;"></div>
+        <div style="clear: both;"></div>
+        <div id="lineChart" style="margin-top: 10px;"></div>
+    </div>
     <script>
-      // Run queries and display results here
+    
+      
+      var lineChart = $('#lineChart').MPChart({chartType: 'line'});
+      var table = $('#table').MPTable();
+      
+      var params;
+      
+      //var dateSelector = $('#dateSelect').MPDatepicker();    // Create a date picker
+      
+      // Create the dropdown containing your top events
+      var eventSelector = $('#eventSelect').MPEventSelect();  
+      
+      eventSelector.on('change', function(e, event) {                          // Do something when the dates are changed
+        params = {
+          from: moment().subtract(6, 'months'),
+          to: moment(), //to: dates['to'],
+          unit: 'day',                        // specifies the the bucket size; can be 'day' or 'week'
+          interval_count: 30,                 // the number of desired units
+          limit: 270,                         // maximum number of results to return
+          born_event: event,
+          event: event
+        }; //end params
+        
+        
+        MP.api.retention(undefined, params).done(function(results) {
+          
+          //console.log("raw data:");
+          //console.log(results.values());
+          
+          var chartData = {
+            'Day 0': 0,
+            'Day 1': 1,
+            'Day 7': 7,
+            'Day 30': 30,
+          };
+          
+          
+          var newValues = {};
+          $.each(results.values(), function(k, v) {
+            newValues[k] = 100 * v.counts[0] / v.first;
+          })
+          chartData['Day 0'] = newValues;
+          
+          newValues = {};
+          $.each(results.values(), function(k, v) {
+            if(v.counts[1]) {
+              newValues[k] = 100 * v.counts[1] / v.first;
+            }
+          })
+          chartData['Day 1'] = newValues;
+          
+          newValues = {};
+          $.each(results.values(), function(k, v) {
+            if(v.counts[7]) {
+              newValues[k] = 100 * v.counts[7] / v.first;
+            }
+          })
+          chartData['Day 7'] = newValues;
+          
+          newValues = {};
+          $.each(results.values(), function(k, v) {
+            if(v.counts[30]) {
+              newValues[k] = 100 * v.counts[30] / v.first;
+            }
+          })
+          chartData['Day 30'] = newValues;
+          
+          //console.log("chart data:");
+          //console.log(chartData);
+
+          lineChart.MPChart('setData', chartData);
+          
+        }); //end retention
+        
+      });
+      
+      
+      //dateSelector.on('change', function(e, dates) {                          // Do something when the dates are changed
+        
+        params = {
+          from: moment().subtract(6, 'months'),
+          to: moment(), //to: dates['to'],
+          unit: 'day',                        // specifies the the bucket size; can be 'day' or 'week'
+          interval_count: 30,                 // the number of desired units
+          limit: 270,                         // maximum number of results to return
+        }; //end params
+        
+        // when an event is chosen, run a segmentation query to get counts for that event
+        MP.api.retention(undefined, params).done(function(results) {
+          
+          //console.log("raw data:");
+          //console.log(results.values());
+          
+          var chartData = {
+            'Day 0': 0,
+            'Day 1': 1,
+            'Day 7': 7,
+            'Day 30': 30,
+          };
+          
+          
+          var newValues = {};
+          $.each(results.values(), function(k, v) {
+            newValues[k] = 100 * v.counts[0] / v.first;
+          })
+          chartData['Day 0'] = newValues;
+          
+          newValues = {};
+          $.each(results.values(), function(k, v) {
+            if(v.counts[1]) {
+              newValues[k] = 100 * v.counts[1] / v.first;
+            }
+          })
+          chartData['Day 1'] = newValues;
+          
+          newValues = {};
+          $.each(results.values(), function(k, v) {
+            if(v.counts[7]) {
+              newValues[k] = 100 * v.counts[7] / v.first;
+            }
+          })
+          chartData['Day 7'] = newValues;
+          
+          newValues = {};
+          $.each(results.values(), function(k, v) {
+            if(v.counts[30]) {
+              newValues[k] = 100 * v.counts[30] / v.first;
+            }
+          })
+          chartData['Day 30'] = newValues;
+          
+          //console.log("chart data:");
+          //console.log(chartData);
+
+          lineChart.MPChart('setData', chartData);
+          
+        }); //end retention
+        
+        
+      //}); // end on(change)
+      
     </script>
   </body>
 </html>
