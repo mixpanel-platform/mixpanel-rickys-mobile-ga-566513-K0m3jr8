@@ -19,24 +19,19 @@
       
       var lineChart = $('#lineChart').MPChart({chartType: 'line'});
       var table = $('#table').MPTable();
-      
+      var eventSelector = $('#eventSelect').MPEventSelect();
       var params;
       
-      //var dateSelector = $('#dateSelect').MPDatepicker();    // Create a date picker
-      
-      // Create the dropdown containing your top events
-      var eventSelector = $('#eventSelect').MPEventSelect();  
-      
-      eventSelector.on('change', function(e, event) {                          // Do something when the dates are changed
+      eventSelector.on('change', function(e, event) {
         params = {
           from: moment().subtract(6, 'months'),
-          to: moment(), //to: dates['to'],
-          unit: 'day',                        // specifies the the bucket size; can be 'day' or 'week'
-          interval_count: 30,                 // the number of desired units
-          limit: 270,                         // maximum number of results to return
+          to: moment(),
+          unit: 'day',
+          interval_count: 30,
+          limit: 270,
           born_event: event,
           event: event
-        }; //end params
+        };
         
         
         MP.api.retention(undefined, params).done(function(results) {
