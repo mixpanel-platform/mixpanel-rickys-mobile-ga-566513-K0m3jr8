@@ -17,140 +17,67 @@
     <script>
     
       
-      var lineChart = $('#lineChart').MPChart({chartType: 'line'});
-      var table = $('#table').MPTable();
-      var eventSelector = $('#eventSelect').MPEventSelect();
-      var params;
+      var lineChart = $('#lineChart').MPChart({chartType: 'line'}),
+          table = $('#table').MPTable(),
+          eventSelector = $('#eventSelect').MPEventSelect(),
+          params = {
+            from: moment().subtract(6, 'months'),
+            to: moment(),
+            unit: 'day',
+            interval_count: 30,
+            limit: 270,
+          },
+          chartData = {
+            'Day 0': {},
+            'Day 1': {},
+            'Day 7': {},
+            'Day 30': {},
+          };
       
       eventSelector.on('change', function(e, event) {
-        params = {
-          from: moment().subtract(6, 'months'),
-          to: moment(),
-          unit: 'day',
-          interval_count: 30,
-          limit: 270,
-          born_event: event,
-          event: event
-        };
-        
+        params.born_event = event;
+        params.event = event;
         
         MP.api.retention(undefined, params).done(function(results) {
-          
-          //console.log("raw data:");
-          //console.log(results.values());
-          
-          var chartData = {
-            'Day 0': 0,
-            'Day 1': 1,
-            'Day 7': 7,
-            'Day 30': 30,
-          };
-          
-          
-          var newValues = {};
-          $.each(results.values(), function(k, v) {
-            newValues[k] = 100 * v.counts[0] / v.first;
-          })
-          chartData['Day 0'] = newValues;
-          
-          newValues = {};
-          $.each(results.values(), function(k, v) {
-            if(v.counts[1]) {
-              newValues[k] = 100 * v.counts[1] / v.first;
-            }
-          })
-          chartData['Day 1'] = newValues;
-          
-          newValues = {};
-          $.each(results.values(), function(k, v) {
-            if(v.counts[7]) {
-              newValues[k] = 100 * v.counts[7] / v.first;
-            }
-          })
-          chartData['Day 7'] = newValues;
-          
-          newValues = {};
-          $.each(results.values(), function(k, v) {
-            if(v.counts[30]) {
-              newValues[k] = 100 * v.counts[30] / v.first;
-            }
-          })
-          chartData['Day 30'] = newValues;
-          
-          //console.log("chart data:");
-          //console.log(chartData);
 
-          lineChart.MPChart('setData', chartData);
+          $.each(results.values(), function(k, v) {
+            if (v.counts[0]) {
+              chartData['Day 0'][k] = 100 * v.counts[0] / v.first;  
+            }
+            if (v.counts[1]) {
+              chartData['Day 1'][k] = 100 * v.counts[1] / v.first;
+            }
+            if (v.counts[7]) {
+              chartData['Day 7'][k] = 100 * v.counts[7] / v.first;
+            }
+            if (v.counts[30]) {
+              chartData['Day 30'][k] = 100 * v.counts[30] / v.first;
+            }
+          });
           
-        }); //end retention
-        
+          lineChart.MPChart('setData', chartData);
+        });
       });
-      
-      
-      //dateSelector.on('change', function(e, dates) {                          // Do something when the dates are changed
-        
-        params = {
-          from: moment().subtract(6, 'months'),
-          to: moment(), //to: dates['to'],
-          unit: 'day',                        // specifies the the bucket size; can be 'day' or 'week'
-          interval_count: 30,                 // the number of desired units
-          limit: 270,                         // maximum number of results to return
-        }; //end params
-        
-        // when an event is chosen, run a segmentation query to get counts for that event
-        MP.api.retention(undefined, params).done(function(results) {
-          
-          //console.log("raw data:");
-          //console.log(results.values());
-          
-          var chartData = {
-            'Day 0': 0,
-            'Day 1': 1,
-            'Day 7': 7,
-            'Day 30': 30,
-          };
-          
-          
-          var newValues = {};
-          $.each(results.values(), function(k, v) {
-            newValues[k] = 100 * v.counts[0] / v.first;
-          })
-          chartData['Day 0'] = newValues;
-          
-          newValues = {};
-          $.each(results.values(), function(k, v) {
-            if(v.counts[1]) {
-              newValues[k] = 100 * v.counts[1] / v.first;
-            }
-          })
-          chartData['Day 1'] = newValues;
-          
-          newValues = {};
-          $.each(results.values(), function(k, v) {
-            if(v.counts[7]) {
-              newValues[k] = 100 * v.counts[7] / v.first;
-            }
-          })
-          chartData['Day 7'] = newValues;
-          
-          newValues = {};
-          $.each(results.values(), function(k, v) {
-            if(v.counts[30]) {
-              newValues[k] = 100 * v.counts[30] / v.first;
-            }
-          })
-          chartData['Day 30'] = newValues;
-          
-          //console.log("chart data:");
-          //console.log(chartData);
 
-          lineChart.MPChart('setData', chartData);
-          
-        }); //end retention
+      MP.api.retention(undefined, params).done(function(results) {
+
+        $.each(results.values(), function(k, v) {
+          if (v.counts[0]) {
+            chartData['Day 0'][k] = 100 * v.counts[0] / v.first;  
+          }
+          if (v.counts[1]) {
+            chartData['Day 1'][k] = 100 * v.counts[1] / v.first;
+          }
+          if (v.counts[7]) {
+            chartData['Day 7'][k] = 100 * v.counts[7] / v.first;
+          }
+          if (v.counts[30]) {
+            chartData['Day 30'][k] = 100 * v.counts[30] / v.first;
+          }
+        });
         
-        
-      //}); // end on(change)
-      
+        lineChart.MPChart('setData', chartData);
+      });
     </script>
   </body>
 </html>
