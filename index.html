@@ -15,8 +15,6 @@
         <div id="lineChart" style="margin-top: 10px;"></div>
     </div>
     <script>
-    
-      
       var lineChart = $('#lineChart').MPChart({chartType: 'line'}),
           table = $('#table').MPTable(),
           eventSelector = $('#eventSelect').MPEventSelect(),
@@ -34,9 +32,9 @@
             'Day 30': {},
           };
       
-      eventSelector.on('change', function(e, event) {
-        params.born_event = event;
-        params.event = event;
+      eventSelector.on('change', function(e, retention_event) {
+        params.born_event = retention_event;
+        params.retention_event = retention_event;
         
         MP.api.retention(undefined, params).done(function(results) {
 
